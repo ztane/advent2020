@@ -711,7 +711,7 @@ class SparseComplexMap(dict):
         self.rows += 1
 
     def __missing__(self, key):
-        x, y = key.real, key.imag
+        x, y = int(key.real), int(key.imag)
         self[key] = self.generate(x, y)
         return self[key]
 
@@ -720,6 +720,14 @@ class SparseComplexMap(dict):
         if not self.columns % 2 or not self.rows % 2:
             raise ValueError('The width and height both must be odd')
         return complex(self.columns // 2, self.rows // 2)
+
+
+def SparseRepeatingComplexMap(basic_pattern):
+    def generate(x, y):
+        return basic_pattern[y % the_map.rows][x % the_map.columns]
+
+    the_map = SparseComplexMap(the_map=basic_pattern, default=generate)
+    return the_map
 
 
 def scalar(i: Iterable, nested=False):

@@ -1,22 +1,21 @@
 from helpers import *
 
 d = get_aoc_data(day=3)
-the_map = SparseRepeatingMap(d.lines)
+the_map = SparseRepeatingComplexMap(d.lines)
 
 
-def trees_along_slope(dx: int, dy: int) -> int:
-    x = y = trees = 0
-    while y < the_map.rows:
-        trees += the_map[x, y] == '#'
-        y += dy
-        x += dx
+def trees_along_slope(delta: complex) -> int:
+    p = trees = 0
+    while p.imag < the_map.rows:
+        trees += the_map[p] == '#'
+        p += delta
 
     return trees
 
 
 def part1():
-    return trees_along_slope(3, 1)
+    return trees_along_slope(3+1j)
 
 
 def part2():
-    return prod(starmap(trees_along_slope, [(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)]))
+    return prod(map(trees_along_slope, [1+1j, 3+1j, 5+1j, 7+1j, 1+2j]))
