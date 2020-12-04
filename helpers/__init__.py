@@ -104,10 +104,10 @@ class Data:
         :return: None
         """
         lines = self.lines
-        for i in lines[:7]:
+        for i in lines[:10]:
             print(i)
         if len(lines) > 10:
-            print(f'Total {len(lines)} lines; {len(lines) - 7} '
+            print(f'Total {len(lines)} lines; {len(lines) - 10} '
                   f'remaining lines omitted...')
 
 

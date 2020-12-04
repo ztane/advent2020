@@ -1,4 +1,4 @@
-advent-of-code-data==0.5
+advent-of-code-data
 beautifulsoup4==4.6.3
 certifi==2018.11.29
 chardet==3.0.4
