@@ -27,21 +27,21 @@ def part2():
     for features in passports():
         hgt_unit = features['hgt'][-2:]
         if hgt_unit not in {'in', 'cm'}:
-            print(f'invalid height unit, or unit missing in {hgt_unit!r}')
+            # print(f'invalid height unit, or unit missing in {hgt_unit!r}')
             continue
 
         hgt = int(features['hgt'][:-2])
 
         ct += all([
-            1920 <= int(features['byr']) <= 2002,
-            2010 <= int(features['iyr']) <= 2020,
-            2020 <= int(features['eyr']) <= 2030,
+            int(features['byr']) in interval(1920, 2002),
+            int(features['iyr']) in interval(2010, 2020),
+            int(features['eyr']) in interval(2020, 2030),
             features['ecl'] in EYE_COLOURS,
-            re.match('#[0-9a-fA-F]{6}', features['hcl']),
+            re.fullmatch('#[0-9a-fA-F]{6}', features['hcl']),
             features['pid'].isdigit(),
             len(features['pid']) == 9,
-            (hgt_unit == 'cm' and (150 <= hgt <= 193) or
-             hgt_unit == 'in' and (59 <= hgt <= 76))
+            (hgt_unit == 'cm' and hgt in interval(150, 193) or
+             hgt_unit == 'in' and hgt in interval(59, 76))
         ])
 
     return ct
