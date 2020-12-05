@@ -118,7 +118,12 @@ def get_aoc_data(day: int) -> Data:
     :param day: the day
     :return: the data
     """
-    return Data(get_data(day=day))
+
+    try:
+        return Data(get_data(day=day))
+    except Exception as e:
+        print('Got exception', e, '- perhaps no data available yet, blocking')
+        return Data(get_data(day=day))
 
 
 def clamp(value: int, min_: int, max_: int) -> int:
