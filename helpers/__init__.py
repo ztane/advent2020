@@ -120,7 +120,7 @@ def get_aoc_data(day: int) -> Data:
     """
 
     try:
-        return Data(get_data(day=day))
+        return Data(get_data(day=day, block=True))
     except Exception as e:
         print('Got exception', e, '- perhaps no data available yet, blocking')
         return Data(get_data(day=day))
