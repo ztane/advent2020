@@ -20,7 +20,7 @@ from textwrap import dedent
 from typing import *
 from typing import Union, Dict
 
-from aocd import get_data
+from aocd import get_data, submit as _aocd_submit
 
 
 class reify(object):
@@ -878,11 +878,25 @@ class Answers(object):
                 print(f"Part {part}:")
                 print(self.for_part(part))
 
+    def submit(self, parts, day, year):
+        for part in parts:
+            # wim uses 'a' and 'b' for parts
+
+            part_letter = '-ab'[part]
+            answer = self.for_part(part)
+            if answer is None:
+                raise ValueError(f'The answer for part {part} is None')
+
+            _aocd_submit(answer, part=part_letter, day=day, year=year)
+
 
 def _test(parts, func):
-    rv = True
+    success = True
+    had_cases = False
+
     for part in parts:
         for input, output in _test_cases[part].items():
+            had_cases = True
             answers = Answers()
             func(Data(input), answers)
 
@@ -892,12 +906,16 @@ def _test(parts, func):
             if str(answer) != str(output):
                 print(f"WARNING output {answer!s} from part {part} does not match"
                       f" test case output {output!s}")
-                rv = False
+                success = False
 
-    return rv
+    if not had_cases:
+        return None
+
+    return success
 
 
-def run(parts: Union[Iterable[int], int] = (1, 2), *, day, year) -> None:
+def run(parts: Union[Iterable[int], int] = (1, 2),
+        *, day, year, submit=False) -> None:
     caller_globals = inspect.stack()[1][0].f_globals
 
     if is_scalar(parts):
@@ -910,15 +928,27 @@ def run(parts: Union[Iterable[int], int] = (1, 2), *, day, year) -> None:
 
     both_parts = caller_globals.get('part1_and_2')
     if both_parts:
-        _test(parts, both_parts)
+        test_success = _test(parts, both_parts)
         answers = Answers()
         both_parts(get_data(), answers)
         answers.print_answers()
+
+        if submit:
+            if test_success or submit == 'force':
+                answers.submit(parts, day=day, year=year)
+            else:
+                print("Refusing to submit automatically")
     else:
         for part in parts:
             func = caller_globals[f'part{part}']
-            _test([part], func)
+            test_success = _test([part], func)
 
             answers = Answers()
             func(get_data(), answers)
             answers.print_answers()
+
+            if submit:
+                if test_success or submit == 'force':
+                    answers.submit([part], day=day, year=year)
+                else:
+                    print("Refusing to submit automatically")
