@@ -15,4 +15,4 @@ def part2(d: Data, ans: Answers) -> None:
     ...
 
 
-run([1], day=7, year=2020)
+run([1], day=7, year=2020, submit=True)

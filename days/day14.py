@@ -1,4 +1,3 @@
-
 from helpers import *
 
 test_data = Data("""
@@ -16,4 +15,4 @@ def part2(d: Data, ans: Answers) -> None:
     ...
 
 
-run([1], day=14, year=2020)
+run([1], day=14, year=2020, submit=True)

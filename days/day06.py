@@ -36,4 +36,4 @@ def part2(input_data: Data, answers: Answers):
     )
 
 
-run([1, 2], day=6, year=2020, submit=True)
+run([1, 2], day=6, year=2020)
