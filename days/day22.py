@@ -1,12 +1,19 @@
 
 from helpers import *
 
-d = get_aoc_data(day=22)
+test_data = Data("""
+""")
+
+test_case(1, test_data, ...)
+test_case(2, test_data, ...)
 
 
-def part1():
+def part1(d: Data, ans: Answers) -> None:
     ...
 
 
-def part2():
+def part2(d: Data, ans: Answers) -> None:
     ...
+
+
+run([1], day=22, year=2020)

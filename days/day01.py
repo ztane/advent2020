@@ -1,10 +1,8 @@
 from helpers import *
 
-d = get_aoc_data(day=1)
-ints = sorted(d.extract_ints)
 
-
-def part1():
+def part1(d: Data, ans: Answers):
+    ints = sorted(d.as_ints)
     for a in (ia := fancyseqiter(ints)):
         for b in ia.copy(1):
             s = a + b
@@ -12,10 +10,12 @@ def part1():
                 break
 
             if s == 2020:
-                return a * b
+                ans.part1 = a * b
+                return
 
 
-def part2():
+def part2(d: Data, ans: Answers):
+    ints = sorted(d.as_ints)
     for a in (ia := fancyseqiter(ints)):
         for b in (ib := ia.copy(1)):
             if a + b > 0.67 * 2020:
@@ -28,4 +28,8 @@ def part2():
                     break
 
                 if s == 2020:
-                    return a * b * c
+                    ans.part2 = a * b * c
+                    return
+
+
+run([1, 2], day=1, year=2020)

@@ -1,11 +1,9 @@
 # noinspection PyUnresolvedReferences
+import inspect
 import operator as op
 import re
 import typing
-from collections.abc import *
 from collections import *
-# noinspection PyUnresolvedReferences
-from typing import *
 # noinspection PyUnresolvedReferences
 from functools import *
 # noinspection PyUnresolvedReferences
@@ -18,6 +16,8 @@ from math import *
 from numbers import *
 # noinspection PyUnresolvedReferences
 from textwrap import dedent
+# noinspection PyUnresolvedReferences
+from typing import *
 from typing import Union, Dict
 
 from aocd import get_data
@@ -46,16 +46,22 @@ class reify(object):
         return val
 
 
-class Data:
-    def __init__(self, data: str):
-        self.data = data.rstrip('\n\r')
+class Data(str):
+    def __new__(cls, data: str):
+        rv = super().__new__(cls, data.strip('\r\n'))
+        rv.data = data
+        return rv
 
     @reify
     def lines(self) -> typing.Tuple[str, ...]:
-        return tuple(filter(bool, map(str.rstrip, self.data.splitlines())))
+        return tuple(
+            filter(bool,
+                   map(Data,
+                       map(str.rstrip, self.data.splitlines()))
+                   ))
 
-    def split(self, separator: str=', ') -> typing.List[str]:
-        return self.data.split(separator)
+    def split(self, separator: str = None, maxsplit=-1) -> typing.List['Data']:
+        return [Data(i) for i in self.data.split(separator, maxsplit=maxsplit)]
 
     @reify
     def as_int(self) -> int:
@@ -103,15 +109,35 @@ class Data:
         how many lines were omitted
         :return: None
         """
-        lines = self.lines
-        for i in lines[:10]:
-            print(i)
-        if len(lines) > 10:
-            print(f'Total {len(lines)} lines; {len(lines) - 10} '
-                  f'remaining lines omitted...')
+        lines = list(enumerate(self.lines, 1))
+        print("-" * 78)
+
+        def printline(i):
+            lineno, line = i
+            print(f"{lineno:-5d}: {line}")
+
+        if len(lines) > 12:
+            for i in lines[:5]:
+                printline(i)
+
+            print(f'[ {len(lines)} lines in total; {len(lines) - 10} '
+                  f'lines omitted... ]')
+
+            for i in lines[-5:]:
+                printline(i)
+
+        else:
+            for l in lines:
+                printline(l)
+
+        print("-" * 78)
+
+    @reify
+    def without_spaces(self) -> str:
+        return ''.join(i for i in self if not i.isspace())
 
 
-def get_aoc_data(day: int) -> Data:
+def get_aoc_data(day: int, year=None) -> Data:
     """
     Get the wrapped AOC data for a given day
 
@@ -119,11 +145,9 @@ def get_aoc_data(day: int) -> Data:
     :return: the data
     """
 
-    try:
-        return Data(get_data(day=day, block=True))
-    except Exception as e:
-        print('Got exception', e, '- perhaps no data available yet, blocking')
-        return Data(get_data(day=day))
+    rv = Data(get_data(day=day, year=year, block=True))
+    rv.print_excerpt()
+    return rv
 
 
 def clamp(value: int, min_: int, max_: int) -> int:
@@ -166,7 +190,8 @@ def items(thing, *indexes):
     return op.itemgetter(*indexes)(thing)
 
 
-def to_ints(container: typing.Collection[typing.Any]) -> typing.Collection[float]:
+def to_ints(container: typing.Collection[typing.Any]) -> typing.Collection[
+    float]:
     """
     Return the given items as ints, in the same container type
 
@@ -178,7 +203,8 @@ def to_ints(container: typing.Collection[typing.Any]) -> typing.Collection[float
     return t(map(int, container))
 
 
-def to_floats(container: typing.Collection[typing.Any]) -> typing.Collection[float]:
+def to_floats(container: typing.Collection[typing.Any]) -> typing.Collection[
+    float]:
     """
     Return the given items as floats, in the same container type
 
@@ -735,14 +761,19 @@ def SparseRepeatingComplexMap(basic_pattern):
     return the_map
 
 
+def is_scalar(i: Any) -> bool:
+    return not (isinstance(i, Iterable) and not isinstance(i, (str, bytes)))
+
+
 def scalar(i: Iterable, nested=False):
     """
     Returns the *one* element in the iterable, or throws ValueError
     :param i: the iterable
+    :param nested: unfold nested iterables
     :return: the scalar value
     """
 
-    while isinstance(i, Iterable) and not isinstance(i, (str, bytes)):
+    while not is_scalar(i):
         l = list(i)
         if len(l) != 1:
             raise ValueError('The given iterable must have exactly one element,'
@@ -799,3 +830,95 @@ class fancyseqiter:
 
     def copy(self, adjustment=0):
         return fancyseqiter(self._s, self._i + adjustment)
+
+
+def intersection(items: Iterable[T]) -> Set[T]:
+    items = list(items)
+    if not items:
+        return set()
+
+    return set(items[0]).intersection(*items[1:])
+
+
+def union(items: Iterable[T]) -> Set[T]:
+    items = list(items)
+    if not items:
+        return set()
+
+    return set(items[0]).union(*items[1:])
+
+
+def set_len(items: Iterable[T]) -> int:
+    return len(set(items))
+
+
+_test_cases = defaultdict(dict)
+
+
+def test_case(part, input, output):
+    _test_cases[part][input] = output
+
+
+class Answers(object):
+    part1: Any = None
+    part2: Any = None
+
+    def for_part(self, part: int) -> Any:
+        if part == 1:
+            return self.part1
+
+        if part == 2:
+            return self.part2
+
+        raise ValueError(f"Unknown part number {part}")
+
+    def print_answers(self):
+        for part in [1, 2]:
+            if self.for_part(part) is not None:
+                print(f"Part {part}:")
+                print(self.for_part(part))
+
+
+def _test(parts, func):
+    rv = True
+    for part in parts:
+        for input, output in _test_cases[part].items():
+            answers = Answers()
+            func(Data(input), answers)
+
+            if (answer := answers.for_part(part)) is None:
+                raise ValueError("No answer was given for test case {input}")
+
+            if str(answer) != str(output):
+                print(f"WARNING output {answer!s} from part {part} does not match"
+                      f" test case output {output!s}")
+                rv = False
+
+    return rv
+
+
+def run(parts: Union[Iterable[int], int] = (1, 2), *, day, year) -> None:
+    caller_globals = inspect.stack()[1][0].f_globals
+
+    if is_scalar(parts):
+        parts = [parts]
+
+    data = get_aoc_data(day=day, year=year)
+
+    def get_data():
+        return Data(str(data))
+
+    both_parts = caller_globals.get('part1_and_2')
+    if both_parts:
+        _test(parts, both_parts)
+        answers = Answers()
+        both_parts(get_data(), answers)
+        answers.print_answers()
+    else:
+        for part in parts:
+            func = caller_globals[f'part{part}']
+            _test([part], func)
+
+            answers = Answers()
+            func(get_data(), answers)
+            answers.print_answers()
