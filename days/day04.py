@@ -51,6 +51,7 @@ eyr:2022
 iyr:2010 hgt:158cm hcl:#b6652a ecl:blu byr:1944 eyr:2021 pid:093154719
 """)
 
+test_case(2, test_data2, 4)
 
 
 def part1_and_2(d: Data, ans: Answers):
@@ -89,8 +90,6 @@ def part1_and_2(d: Data, ans: Answers):
 
     ans.part2 = ct
 
-
-test_case(2, test_data2, 4)
 
 run([1, 2], day=4, year=2020)
 
