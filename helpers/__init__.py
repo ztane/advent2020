@@ -48,6 +48,7 @@ class reify(object):
 
 class Data(str):
     def __new__(cls, data: str):
+        data = data.strip('\r\n')
         rv = super().__new__(cls, data.strip('\r\n'))
         rv.data = data
         return rv
@@ -59,6 +60,16 @@ class Data(str):
                    map(Data,
                        map(str.rstrip, self.data.splitlines()))
                    ))
+
+    def stripsplit(self, separator: str = None, maxsplit=-1) -> typing.List[
+        'Data']:
+        """
+        Split with the desired separator and also strip whitespace from parts
+        """
+        return [
+            Data(i.strip())
+            for i in self.data.split(separator, maxsplit=maxsplit)
+        ]
 
     def split(self, separator: str = None, maxsplit=-1) -> typing.List['Data']:
         return [Data(i) for i in self.data.split(separator, maxsplit=maxsplit)]
@@ -259,7 +270,7 @@ def draw_display(display_data):
 
 _parser_conversions = {
     'int': (int, '\s*[-+]?\d+\s*'),
-    'str': (str, '.*?'),
+    'str': (Data, '.*?'),
 }
 
 
@@ -904,8 +915,9 @@ def _test(parts, func):
                 raise ValueError("No answer was given for test case {input}")
 
             if str(answer) != str(output):
-                print(f"WARNING output {answer!s} from part {part} does not match"
-                      f" test case output {output!s}")
+                print(
+                    f"WARNING output {answer!s} from part {part} does not match"
+                    f" test case output {output!s}")
                 success = False
 
     if not had_cases:
@@ -926,9 +938,17 @@ def run(parts: Union[Iterable[int], int] = (1, 2),
     def get_data():
         return Data(str(data))
 
-    both_parts = caller_globals.get('part1_and_2')
+    both_parts = caller_globals.get("part1_and_2")
     if both_parts:
         test_success = _test(parts, both_parts)
+
+        if test_success:
+            print(f"100 % of the test cases succeeded")
+        elif test_success is None:
+            print("No test cases!")
+        else:
+            print("Test failure")
+
         answers = Answers()
         both_parts(get_data(), answers)
         answers.print_answers()
@@ -943,12 +963,19 @@ def run(parts: Union[Iterable[int], int] = (1, 2),
             func = caller_globals[f'part{part}']
             test_success = _test([part], func)
 
+            if test_success:
+                print(f"100 % of the test cases succeeded for part {part}")
+            elif test_success is None:
+                print("No test cases!")
+            else:
+                print(f"Test failure for part {part}")
+
             answers = Answers()
             func(get_data(), answers)
             answers.print_answers()
 
             if submit:
-                if test_success or submit == 'force':
+                if test_success or submit == "force":
                     answers.submit([part], day=day, year=year)
                 else:
                     print("Refusing to submit automatically")
