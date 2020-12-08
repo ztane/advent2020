@@ -871,8 +871,12 @@ def test_case(part, input, output):
 
 
 class Answers(object):
-    part1: Any = None
-    part2: Any = None
+    part1: Any
+    part2: Any
+
+    def __init__(self, part1: Any = None, part2: Any = None):
+        self.part1 = part1
+        self.part2 = part2
 
     def for_part(self, part: int) -> Any:
         if part == 1:
@@ -912,7 +916,8 @@ def _test(parts, func):
             func(Data(input), answers)
 
             if (answer := answers.for_part(part)) is None:
-                raise ValueError("No answer was given for test case {input}")
+                raise ValueError(f"No answer was given for test case {input!r} "
+                                 f"for part {part}, was expecting {output!r}")
 
             if str(answer) != str(output):
                 print(

@@ -14,7 +14,6 @@ dotted black bags contain no other bags.
 
 test_case(1, test_data_for_part1, 4)
 
-
 test_data_for_part2 = Data("""
 shiny gold bags contain 2 dark red bags.
 dark red bags contain 2 dark orange bags.
@@ -48,8 +47,8 @@ def part1_and_2(d: Data, ans: Answers) -> None:
 
     def count_contents(current_contents: Counter):
         return (sum(current_contents.values())
-              + sum(number * count_contents(contents[colour])
-                    for (colour, number) in current_contents.items()))
+                + sum(number * count_contents(contents[colour])
+                      for (colour, number) in current_contents.items()))
 
     ans.part1 = len(trace_containers(containers['shiny gold']))
     ans.part2 = count_contents(contents['shiny gold'])
