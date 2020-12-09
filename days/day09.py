@@ -28,20 +28,23 @@ test_case(2, test_data, 62)
 
 
 def part1_and_2(d: Data, ans: Answers) -> None:
-    previous = 25
+    preamble = 25
     if d == test_data:
-        previous = 5
+        preamble = 5
 
     numbers = d.extract_ints
-    for i in range(previous, len(numbers)):
-        those_before = numbers[i - previous:i]
-        for a, b in product(*[those_before] * 2):
-            if numbers[i] == a + b:
+    previous_set = set(numbers[:preamble])
+    for i in count(preamble):
+        current = numbers[i]
+        for j in previous_set:
+            if current - j in previous_set:
                 break
-
         else:
-            part1 = ans.part1 = numbers[i]
+            part1 = ans.part1 = current
             break
+
+        previous_set.remove(numbers[i - preamble])
+        previous_set.add(numbers[i])
     else:
         raise Exception("No solution for part 1")
 
