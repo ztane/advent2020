@@ -82,7 +82,9 @@ class Data(str):
     def as_ints(self) -> typing.Tuple[int, ...]:
         return tuple(map(int, re.findall(r'-?\d+', self.data)))
 
-    extract_ints = as_ints
+    @reify
+    def extract_ints(self) -> typing.Tuple[int, ...]:
+        return tuple(map(int, re.findall(r'-?\d+', self.data)))
 
     @reify
     def sentences(self) -> typing.List[typing.List[str]]:
