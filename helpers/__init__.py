@@ -1,4 +1,5 @@
 # noinspection PyUnresolvedReferences
+from more_itertools import *
 import inspect
 import operator as op
 import re

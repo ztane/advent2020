@@ -49,7 +49,7 @@ def part1_and_2(d: Data, ans: Answers) -> None:
         raise Exception("No solution for part 1")
 
     start = end = sliding_sum = 0
-    while sliding_sum != part1:
+    while sliding_sum != part1 or (numbers[start] == numbers[end - 1]):
         if sliding_sum < part1:
             sliding_sum += numbers[end]
             end += 1
