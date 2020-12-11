@@ -416,6 +416,25 @@ def neighbourhood_4(x, y, valid=lambda x, y: True):
     return neighbours
 
 
+def neighbourhood_8(x, y, valid=lambda x, y: True):
+    neighbours = []
+    for nx, ny in ((x, y + 1), (x + 1, y), (x - 1, y), (x, y - 1),
+                   (x + 1, y + 1), (x + 1, y - 1), (x - 1, y - 1), (x - 1, y + 1)):
+        if valid(nx, ny):
+            neighbours.append((nx, ny))
+
+    return neighbours
+
+
+def neighbourhood_8_counts(x: int, y: int, valuefunc: Callable[[int, int], Any]):
+    counts = Counter()
+    for nx, ny in ((x, y + 1), (x + 1, y), (x - 1, y), (x, y - 1),
+                   (x + 1, y + 1), (x + 1, y - 1), (x - 1, y - 1), (x - 1, y + 1)):
+        counts[valuefunc(nx, ny)] += 1
+
+    return counts
+
+
 def a_star_solve(origin,
                  *,
                  target=None,
@@ -689,7 +708,24 @@ def find_unique(
     return None
 
 
+class IterableInt(int):
+    def __getitem__(self, item: int) -> int:
+        if item in self:
+            return item
+
+        raise IndexError
+
+    def __contains__(self, value: int) -> bool:
+        return 0 <= value < self
+
+    def __iter__(self) -> Iterable[int]:
+        return iter(range(self))
+
+
 class SparseMap(dict):
+    rows: IterableInt
+    columns: IterableInt
+
     def __init__(self, the_map=(), *, default=None):
         super().__init__()
         if callable(default):
@@ -706,14 +742,17 @@ class SparseMap(dict):
 
             max_x = max(x, max_x)
 
-        self.rows = y + 1
-        self.columns = max_x + 1
+        self.rows = IterableInt(y + 1)
+        self.columns = IterableInt(max_x + 1)
 
     def add_row(self, row):
         new_y = self.rows
         for x, cell in enumerate(row):
             self[x, new_y] = cell
         self.rows += 1
+
+    def is_inside(self, x, y):
+        return 0 <= x < self.columns and 0 <= y < self.rows
 
     def __missing__(self, key):
         x, y = key

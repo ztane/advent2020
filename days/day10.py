@@ -69,9 +69,10 @@ def part1(d: Data, ans: Answers) -> None:
 
 def part2(d: Data, ans: Answers) -> None:
     joltages = joltage_list(d)
+    # joltages = joltages[:len(joltages) * 3 // 2]
     len_joltages = len(joltages)
 
-    @lru_cache(maxsize=len(joltages))
+    @lru_cache(maxsize=None)
     def count_from_position(i):
         # only one way because last diff is 3
         if i >= len_joltages - 2:
