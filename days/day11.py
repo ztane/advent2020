@@ -24,7 +24,6 @@ def solve(seat_map,
     while True:
         changes = {}
         for seat in seat_coordinates:
-            seat: Tuple[int, int]
             if (seat_state := seat_map[seat]) in 'L#':
                 occupied_count = sum(
                     seat_map[neighbour] == '#'
