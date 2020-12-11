@@ -24,18 +24,18 @@ def solve(seat_map,
     while True:
         changes = {}
         for seat in seat_coordinates:
-            if (seat_state := seat_map[seat]) in 'L#':
-                occupied_count = sum(
-                    seat_map[neighbour] == '#'
-                    for neighbour in neighbourhoods[seat]
-                )
+            occupied_count = sum(
+                seat_map[neighbour] == '#'
+                for neighbour in neighbourhoods[seat]
+            )
 
-                if (seat_state == '#' and
-                        occupied_count >= intolerable_neighbour_count):
-                    changes[seat] = 'L'
+            seat_state = seat_map[seat]
+            if (seat_state == '#' and
+                    occupied_count >= intolerable_neighbour_count):
+                changes[seat] = 'L'
 
-                elif seat_state == 'L' and occupied_count == 0:
-                    changes[seat] = '#'
+            elif seat_state == 'L' and occupied_count == 0:
+                changes[seat] = '#'
 
         if not changes:
             break
@@ -92,4 +92,4 @@ def part1_and_2(d: Data, ans: Answers) -> None:
     ans.part2 = solve(seat_map_part2, seat_coordinates, p2_neighbours, 5)
 
 
-run([1, 2], day=11, year=2020, submit=True)
+run([1, 2], day=11, year=2020)
