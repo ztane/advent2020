@@ -759,6 +759,12 @@ class SparseMap(dict):
         self[key] = self.generate(x, y)
         return self[key]
 
+    def print(self):
+        for y in self.rows:
+            for x in self.columns:
+                print(self[x, y], end='')
+            print()
+
 
 def SparseRepeatingMap(basic_pattern):
     def generate(x, y):
