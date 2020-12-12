@@ -65,4 +65,4 @@ def part2(data: Data, ans: Answers) -> None:
     ans.part2 = cmanhattan(ship)
 
 
-run([1, 2], day=12, year=2020, submit=True)
+run([1, 2], day=12, year=2020)
