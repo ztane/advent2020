@@ -1,5 +1,4 @@
 # noinspection PyUnresolvedReferences
-from more_itertools import *
 import inspect
 import operator as op
 import re
@@ -274,6 +273,7 @@ def draw_display(display_data):
 _parser_conversions = {
     'int': (int, '\s*[-+]?\d+\s*'),
     'str': (Data, '.*?'),
+    'chr': (Data, '.'),
 }
 
 
@@ -419,17 +419,20 @@ def neighbourhood_4(x, y, valid=lambda x, y: True):
 def neighbourhood_8(x, y, valid=lambda x, y: True):
     neighbours = []
     for nx, ny in ((x, y + 1), (x + 1, y), (x - 1, y), (x, y - 1),
-                   (x + 1, y + 1), (x + 1, y - 1), (x - 1, y - 1), (x - 1, y + 1)):
+                   (x + 1, y + 1), (x + 1, y - 1), (x - 1, y - 1),
+                   (x - 1, y + 1)):
         if valid(nx, ny):
             neighbours.append((nx, ny))
 
     return neighbours
 
 
-def neighbourhood_8_counts(x: int, y: int, valuefunc: Callable[[int, int], Any]):
+def neighbourhood_8_counts(x: int, y: int,
+                           valuefunc: Callable[[int, int], Any]):
     counts = Counter()
     for nx, ny in ((x, y + 1), (x + 1, y), (x - 1, y), (x, y - 1),
-                   (x + 1, y + 1), (x + 1, y - 1), (x - 1, y - 1), (x - 1, y + 1)):
+                   (x + 1, y + 1), (x + 1, y - 1), (x - 1, y - 1),
+                   (x - 1, y + 1)):
         counts[valuefunc(nx, ny)] += 1
 
     return counts
@@ -1032,3 +1035,68 @@ def run(parts: Union[Iterable[int], int] = (1, 2),
                     answers.submit([part], day=day, year=year)
                 else:
                     print("Refusing to submit automatically")
+
+
+_direction_parser_prefix = re.compile('([newsNEWS]+)\s*(-?\d+)')
+_direction_parser_suffix = re.compile('(-?\d+)\s*([newsNEWS]+)')
+
+
+class cdir:
+    """
+    Complex directions
+    """
+
+    N = NORTH = -1j
+    E = EAST = 1
+    S = SOUTH = 1j
+    W = WEST = -1
+
+    NW = N + W
+    NE = N + E
+    SW = S + W
+    SE = S + E
+
+    @staticmethod
+    def rotate_left(vector: complex, times: int = 1):
+        return vector * ((-1j) ** times)
+
+    @staticmethod
+    def rotate_left_degrees(vector: complex, degrees: int = 90):
+        return cdir.rotate_left(vector, degrees // 90)
+
+    @staticmethod
+    def rotate_right(vector: complex, times=1):
+        return vector * (1j ** times)
+
+    @staticmethod
+    def rotate_right_degrees(vector: complex, degrees: int = 90):
+        return cdir.rotate_right(vector, degrees // 90)
+
+    @classmethod
+    def compass(cls, direction: str, length: int = 1):
+        return getattr(cls, direction.upper()) * length
+
+    @classmethod
+    def rotate_degrees(cls, vector: complex, direction: str, number: int = 90) -> complex:
+        direction = direction.upper()[0]
+
+        if direction == 'L':
+            return cls.rotate_left_degrees(vector, number)
+
+        if direction == 'R':
+            return cls.rotate_right_degrees(vector, number)
+
+        raise ValueError(f'Invalid direction {direction}')
+
+    @classmethod
+    def parse(cls, string: str, prefix: bool = True) -> complex:
+        rv = 0
+        if prefix:
+            for d, n in _direction_parser_prefix.findall(string):
+                print(d, n)
+                rv += cls.compass(d, int(n))
+        else:
+            for n, d in _direction_parser_prefix.findall(string):
+                rv += cls.compass(d, int(n))
+
+        return rv

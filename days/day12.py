@@ -6,83 +6,63 @@ N3
 F7
 R90
 F11
-""")
+"""
+)
+
+test_data2 = Data("""\
+N10
+W10
+E10
+S10
+F10
+L180
+F10
+"""
+)
 
 test_case(1, test_data, 25)
+test_case(1, test_data2, 0)
 test_case(2, test_data, 286)
 
 
 def part1(data: Data, ans: Answers) -> None:
-    pos = 0, 0
-    d = 1, 0
-    for i in data.lines:
-        l, n = i[0], i[1:]
-        n = int(n)
+    position = 0
+    direction = cdir.parse("E1")
 
-        if l == 'N':
-            pos = pos[0], pos[1] - n
+    for action, number in data.parsed("<chr><int>"):
+        if action in "NSWE":
+            position += cdir.compass(action, number)
 
-        elif l == 'S':
-            pos = pos[0], pos[1] + n
+        elif action in "LR":
+            direction = cdir.rotate_degrees(direction, action, number)
 
-        elif l == 'E':
-            pos = pos[0] + n, pos[1]
-
-        elif l == 'W':
-            pos = pos[0] - n, pos[1]
-
-        elif l == 'R':
-            for i in range(n // 90):
-                d = -d[1], d[0]
-
-        elif l == 'L':
-            for i in range(n // 90):
-                d = d[1], -d[0]
-
-        elif l == 'F':
-            pos = pos[0] + n * d[0], pos[1] + n * d[1]
+        elif action == "F":
+            position += number * direction
 
         else:
-            ValueError
+            ValueError("Unexpected direction")
 
-    ans.part1 = manhattan(*pos)
+    ans.part1 = cmanhattan(position)
 
 
 def part2(data: Data, ans: Answers) -> None:
-    pos = 10, -1
-    ship = 0, 0
+    waypoint = cdir.parse("E10 N1")
+    ship = 0
 
-    for i in data.lines:
-        l, n = i[0], i[1:]
-        n = int(n)
+    for action, number in data.parsed("<chr><int>"):
+        if action in "NSWE":
+            waypoint += cdir.compass(action, number)
 
-        if l == 'N':
-            pos = pos[0], pos[1] - n
+        elif action in "LR":
+            waypoint = cdir.rotate_degrees(waypoint, action, number)
 
-        elif l == 'S':
-            pos = pos[0], pos[1] + n
-
-        elif l == 'E':
-            pos = pos[0] + n, pos[1]
-
-        elif l == 'W':
-            pos = pos[0] - n, pos[1]
-
-        elif l == 'R':
-            for i in range(n // 90):
-                pos = -pos[1], pos[0]
-
-        elif l == 'L':
-            for i in range(n // 90):
-                pos = pos[1], -pos[0]
-
-        elif l == 'F':
-            ship = ship[0] + n * pos[0], ship[1] + n * pos[1]
+        elif action == "F":
+            ship += number * waypoint
 
         else:
-            ValueError
+            ValueError("Unexpected action")
 
-    ans.part2 = manhattan(*ship)
+    ans.part2 = cmanhattan(ship)
 
 
 run([1, 2], day=12, year=2020, submit=True)
