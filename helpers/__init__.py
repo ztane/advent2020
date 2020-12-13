@@ -54,7 +54,7 @@ class Data(str):
         return rv
 
     @reify
-    def lines(self) -> typing.Tuple[str, ...]:
+    def lines(self) -> typing.Tuple['Data', ...]:
         return tuple(
             filter(bool,
                    map(Data,
