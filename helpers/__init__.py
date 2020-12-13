@@ -5,6 +5,7 @@ import re
 import typing
 from collections import *
 # noinspection PyUnresolvedReferences
+from dataclasses import dataclass
 from functools import *
 # noinspection PyUnresolvedReferences
 from hashlib import md5
@@ -1100,3 +1101,28 @@ class cdir:
                 rv += cls.compass(d, int(n))
 
         return rv
+
+
+@dataclass
+class CRTSolution:
+    lowest: int
+    cycle: int
+
+
+def crt(mods: List[Tuple[int, int]]) -> CRTSolution:
+    """
+    Use the Chinese Remainder Theorem
+    """
+
+    inc = 1
+    current = 0
+
+    for modulus, remainder in mods:
+        while current % modulus != remainder:
+            current += inc
+
+        inc = lcm(inc, modulus)
+
+    return CRTSolution(lowest=current, cycle=inc)
+
+
