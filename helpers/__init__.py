@@ -336,7 +336,7 @@ class Parser:
 
     def __call__(self, string):
         """
-        Match the given string agains the pattern, and set results
+        Match the given string against the pattern, and set results
         :param string: the string
         :return: self for chaining and truth-value checking
         """
