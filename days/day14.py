@@ -1,5 +1,3 @@
-from more_itertools import powerset
-
 from helpers import *
 
 # different test case for part 1.
@@ -12,7 +10,21 @@ mem[7] = 101
 mem[8] = 0
 """
 
+test_data2 = """\
+mask = 000000000000000000000000000000X1001X
+mem[42] = 100
+mask = 00000000000000000000000000000000X0XX
+mem[26] = 1
+"""
+
 test_case(1, test_data, 165)
+test_case(2, test_data, 3232)
+test_case(1, test_data2, 51)
+test_case(2, test_data2, 208)
+
+
+mask_parser = Parser('mask = <>')
+address_parser = Parser('mem[<int>] = <int>')
 
 
 def part1_and_2(d: Data, ans: Answers) -> None:
@@ -22,8 +34,6 @@ def part1_and_2(d: Data, ans: Answers) -> None:
     or_mask = and_mask = 0
 
     for i in d.lines:
-        mask_parser = Parser('mask = <>')
-        address_parser = Parser('mem[<int>] = <int>')
         if mask_parser(i):
             mask = mask_parser[0]
 

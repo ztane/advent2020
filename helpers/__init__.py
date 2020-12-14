@@ -1,3 +1,4 @@
+from more_itertools import *
 # noinspection PyUnresolvedReferences
 import inspect
 import operator as op
