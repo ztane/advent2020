@@ -23,10 +23,6 @@ test_case(1, test_data2, 51)
 test_case(2, test_data2, 208)
 
 
-mask_parser = Parser('mask = <>')
-address_parser = Parser('mem[<int>] = <int>')
-
-
 def part1_and_2(d: Data, ans: Answers) -> None:
     address_space_p1 = defaultdict(int)
     address_space_p2 = defaultdict(int)
@@ -34,8 +30,8 @@ def part1_and_2(d: Data, ans: Answers) -> None:
     or_mask = and_mask = 0
 
     for i in d.lines:
-        if mask_parser(i):
-            mask = mask_parser[0]
+        if mask_match := i.parsed('mask = <>'):
+            mask = mask_match[0]
 
             and_mask = int(mask.replace('X', '1'), 2)
             or_mask = int(mask.replace('X', '0'), 2)
@@ -48,9 +44,9 @@ def part1_and_2(d: Data, ans: Answers) -> None:
                 if floating_mask & bit
             ]
 
-        elif address_parser(i):
-            addr, value = address_parser
-            value_p1 = (value | or_mask) & and_mask
+        elif address_match := i.parsed('mem[<int>] = <int>'):
+            addr, value = address_match
+            value_p1 = value & and_mask | or_mask
             address_space_p1[addr] = value_p1
 
             addr_p2 = addr | or_mask

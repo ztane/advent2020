@@ -151,6 +151,9 @@ class Data(str):
     def without_spaces(self) -> str:
         return ''.join(i for i in self if not i.isspace())
 
+    def parsed(self, format) -> 'Parser':
+        return Parser(format)(self)
+
 
 def get_aoc_data(day: int, year=None) -> Data:
     """
@@ -273,9 +276,10 @@ def draw_display(display_data):
 
 
 _parser_conversions = {
-    'int': (int, '\s*[-+]?\d+\s*'),
-    'str': (Data, '.*?'),
-    'chr': (Data, '.'),
+    'int': (int, r'\s*[-+]?\d+\s*'),
+    'str': (Data, r'.*?'),
+    'chr': (Data, r'.'),
+    'hex': (lambda x: int(x, 16), r'\s*[-+]?[0-9a-fA-F]+\s*'),
 }
 
 

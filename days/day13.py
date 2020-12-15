@@ -15,7 +15,7 @@ test_case(2, "1\n1789,37,47,1889", 1202161486)
 
 
 def part1(d: Data, ans: Answers) -> None:
-    ts, = d.lines[0].extract_ints
+    ts = d.lines[0].as_int
     buses = d.lines[1].extract_ints
 
     waits = [(-ts % bus_id, bus_id) for bus_id in buses]
