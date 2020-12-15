@@ -1,46 +1,33 @@
 from helpers import *
 
-test_data = Data("""
-0,3,6
-""")
-
-test_case(1, test_data, 436)
-test_case(2, '3,1,2', 362)
-
 
 def part1_and_2(d: Data, ans: Answers) -> None:
     numbers = d.extract_ints
 
-    spoken_before = {}
-    spoken = defaultdict(int)
-    spoken_counter = Counter()
+    assert(len(set(numbers)) == len(numbers))
 
+    seen_at = {}
     for i, e in enumerate(numbers, 1):
-        spoken[e] = i
-        spoken_counter[e] += 1
-        last_one = e
+        seen_at[e] = i
 
-    turn = i + 1
-    while True:
-        if spoken_counter[last_one] == 1:
+    # because of the set invariant above
+    current_number = 0
+
+    for turn in count(len(numbers) + 1):
+        try:
+            new_number = turn - seen_at[current_number]
+        except:
             new_number = 0
-        else:
-            new_number = spoken[last_one] - spoken_before[last_one]
 
-        if new_number in spoken:
-            spoken_before[new_number] = spoken[new_number]
-
-        spoken[new_number] = turn
-        spoken_counter[new_number] += 1
-        last_one = new_number
+        seen_at[current_number] = turn
         if turn == 2020:
-            ans.part1 = new_number
+            ans.part1 = current_number
 
-        if turn == 30000000:
-            ans.part2 = new_number
+        elif turn == 30000000:
+            ans.part2 = current_number
             return
 
-        turn += 1
+        current_number = new_number
 
 
 run([1, 2], day=15, year=2020)
