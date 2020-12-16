@@ -36,18 +36,12 @@ def part1(d: Data, ans: Answers) -> None:
     constraints, my_ticket, nearby = d.split('\n\n')
 
     all_constraints = {}
-    print(constraints.lines)
     for cls, constr in [i.split(':') for i in constraints.lines]:
-        constr = iter(Data(constr.replace('-', ' ')).extract_ints)
-        ranges = []
-        for i in constr:
-            ranges.append((i, next(constr)))
-        all_constraints[cls] = ranges
+        it = iter(constr.as_unsigned)
+        all_constraints[cls] = list(zip(it, it))
 
-    my_ticket = my_ticket.extract_ints
-    nearby_tickets = [i.extract_ints for i in nearby.lines]
-
-    print(all_constraints, my_ticket, nearby_tickets)
+    my_ticket = my_ticket.as_unsigned
+    nearby_tickets = [i.as_unsigned for i in nearby.lines]
 
     rate = 0
     for x in nearby_tickets:
@@ -60,63 +54,58 @@ def part1(d: Data, ans: Answers) -> None:
             if not valid:
                 rate += y
                 break
+
     ans.part1 = rate
 
 
 def part2(d: Data, ans: Answers) -> None:
-    constraints, my_ticket, nearby = d.split('\n\n')
+    constraints_str, my_ticket_str, nearby_tickets_str = d.split('\n\n')
 
-    all_constraints = {}
-    for cls, constr in [i.split(':') for i in constraints.lines]:
-        constr = iter(Data(constr.replace('-', ' ')).extract_ints)
-        ranges = []
-        for i in constr:
-            ranges.append((i, next(constr)))
-        all_constraints[cls] = ranges
+    constraints = {}
+    for cls, constr in [i.split(':') for i in constraints_str.lines]:
+        constr = iter(constr.as_unsigned)
+        constraints[cls] = list(zip(constr, constr))
 
-    my_ticket = my_ticket.extract_ints
-    nearby_tickets = [i.extract_ints for i in nearby.lines]
+    my_ticket = my_ticket_str.extract_unsigned
+    nearby_tickets = [i.extract_unsigned for i in nearby_tickets_str.lines]
 
-    rate = 0
     valid_tickets = []
-    for x in nearby_tickets:
-        for y in x:
+    for ticket in nearby_tickets:
+        for field in ticket:
             valid = False
-            for r in all_constraints.values():
+            for r in constraints.values():
                 for (start, end) in r:
-                    if start <= y <= end:
+                    if start <= field <= end:
                         valid = True
             if not valid:
                 break
         else:
-            valid_tickets.append(x)
+            valid_tickets.append(ticket)
 
     cols = len(my_ticket)
-    possible = [set(all_constraints) for _ in range(cols)]
+    possible_fields = {i: set(constraints) for i in range(cols)}
     for tkt in valid_tickets:
-        for i, e in enumerate(tkt):
-            for k, v in all_constraints.items():
+        for idx, ticket_field in enumerate(tkt):
+            for k, v in constraints.items():
                 valid = False
                 for (start, end) in v:
-                    if start <= e <= end:
+                    if start <= ticket_field <= end:
                         valid = True
                 if not valid:
-                    possible[i].discard(k)
+                    possible_fields[idx].discard(k)
 
-    possible = sorted([i for i in enumerate(possible)], key=lambda x: len(x[1]))
-    print(possible)
+    possible_ordered = sorted(possible_fields.items(), key=lambda x: len(x[1]))
 
+    departure_field_product = 1
     assigned = set()
-    answ = 1
-    for i, e in possible:
-        unassigned = scalar(e - assigned)
-        print(i, unassigned)
-        assigned.add(unassigned)
 
-        if unassigned.startswith('departure'):
-            answ *= my_ticket[i]
+    for idx, field_set in possible_ordered:
+        assigned.add(this_field := scalar(field_set - assigned))
 
-    ans.part2 = answ
+        if this_field.startswith('departure'):
+            departure_field_product *= my_ticket[idx]
+
+    ans.part2 = departure_field_product
 
 
-run([2], day=16, year=2020, submit=True)
+run([1, 2], day=16, year=2020)

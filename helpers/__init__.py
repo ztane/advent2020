@@ -85,6 +85,14 @@ class Data(str):
         return tuple(map(int, re.findall(r'-?\d+', self.data)))
 
     @reify
+    def as_unsigned(self) -> typing.Tuple[int, ...]:
+        return tuple(map(int, re.findall(r'\d+', self.data)))
+
+    @reify
+    def extract_unsigned(self) -> typing.Tuple[int, ...]:
+        return tuple(map(int, re.findall(r'\d+', self.data)))
+
+    @reify
     def extract_ints(self) -> typing.Tuple[int, ...]:
         return tuple(map(int, re.findall(r'-?\d+', self.data)))
 
