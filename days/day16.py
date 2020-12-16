@@ -32,13 +32,18 @@ nearby tickets:
 """, 12 * 11)
 
 
+def make_constraint_func(constraints):
+    return lambda field: any(a <= field <= b for
+                             (a, b) in constraints)
+
+
 def part1(d: Data, ans: Answers) -> None:
     constraints, my_ticket, nearby = d.split('\n\n')
 
     all_constraints = {}
     for cls, constr in [i.split(':') for i in constraints.lines]:
         it = iter(constr.as_unsigned)
-        all_constraints[cls] = list(zip(it, it))
+        all_constraints[cls] = make_constraint_func(tuple(zip(it, it)))
 
     my_ticket = my_ticket.as_unsigned
     nearby_tickets = [i.as_unsigned for i in nearby.lines]
@@ -47,10 +52,11 @@ def part1(d: Data, ans: Answers) -> None:
     for x in nearby_tickets:
         for y in x:
             valid = False
+
             for r in all_constraints.values():
-                for (start, end) in r:
-                    if start <= y <= end:
-                        valid = True
+                if r(y):
+                    valid = True
+
             if not valid:
                 rate += y
                 break
@@ -63,8 +69,8 @@ def part2(d: Data, ans: Answers) -> None:
 
     constraints = {}
     for cls, constr in [i.split(':') for i in constraints_str.lines]:
-        constr = iter(constr.as_unsigned)
-        constraints[cls] = list(zip(constr, constr))
+        it = iter(constr.as_unsigned)
+        constraints[cls] = make_constraint_func(tuple(zip(it, it)))
 
     my_ticket = my_ticket_str.extract_unsigned
     nearby_tickets = [i.extract_unsigned for i in nearby_tickets_str.lines]
@@ -72,12 +78,10 @@ def part2(d: Data, ans: Answers) -> None:
     valid_tickets = []
     for ticket in nearby_tickets:
         for field in ticket:
-            valid = False
-            for r in constraints.values():
-                for (start, end) in r:
-                    if start <= field <= end:
-                        valid = True
-            if not valid:
+            for field_c_func in constraints.values():
+                if field_c_func(field):
+                    break
+            else:
                 break
         else:
             valid_tickets.append(ticket)
@@ -86,12 +90,8 @@ def part2(d: Data, ans: Answers) -> None:
     possible_fields = {i: set(constraints) for i in range(cols)}
     for tkt in valid_tickets:
         for idx, ticket_field in enumerate(tkt):
-            for k, v in constraints.items():
-                valid = False
-                for (start, end) in v:
-                    if start <= ticket_field <= end:
-                        valid = True
-                if not valid:
+            for k, field_c_func in constraints.items():
+                if not field_c_func(ticket_field):
                     possible_fields[idx].discard(k)
 
     possible_ordered = sorted(possible_fields.items(), key=lambda x: len(x[1]))
