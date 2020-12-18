@@ -18,7 +18,6 @@ operator_mapping = {
     ast.Sub: ast.Mult,
     ast.Div: ast.Add,
     ast.Add: ast.Add,
-    ast.Mult: ast.Mult,
 }
 
 
