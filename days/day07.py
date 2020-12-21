@@ -33,7 +33,7 @@ def part1_and_2(d: Data, ans: Answers) -> None:
 
     colour_parser = Parser('<int> <> bag<*>')
 
-    for colour, others in d.parsed('<> bags contain <>.'):
+    for colour, others in d.parsed_lines('<> bags contain <>.'):
         for other in others.stripsplit(','):
             if colour_parser(other):
                 n, c = colour_parser

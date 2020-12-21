@@ -13,20 +13,16 @@ test_case(2, test_data, "mxmxvkd,sqjhc,fvjkl")
 
 def part1_and_2(d: Data, ans: Answers) -> None:
     non_allergenic_ingredient_count = Counter()
-    allergens_to_possible_ingredients = defaultdict(set)
+    allergens_to_possible_ingredients = defaultdict(IntersectionSet)
 
-    for l in d.lines:
-        ingredients, allergens = Parser('<> (contains <>)')(l)
+    for ingredients, allergens in d.parsed_lines('<> (contains <>)'):
         ingredients = ingredients.split()
-        allergens = allergens.stripsplit(',')
         non_allergenic_ingredient_count.update(ingredients)
 
-        for allergen in allergens:
-            if allergen not in allergens_to_possible_ingredients:
-                allergens_to_possible_ingredients[allergen].update(ingredients)
-            else:
-                allergens_to_possible_ingredients[allergen].intersection_update(
-                    ingredients)
+        for allergen in allergens.stripsplit(','):
+            allergens_to_possible_ingredients[allergen].intersection_update(
+                ingredients
+            )
 
     ingredient_to_allergen = {}
     while allergens_to_possible_ingredients:

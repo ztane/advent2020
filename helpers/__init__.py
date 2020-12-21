@@ -116,7 +116,7 @@ class Data(str):
         """
         return [[int(i) for i in line.split()] for line in self.lines]
 
-    def parsed(self, fmt: str, verbatim_ws: bool = False) \
+    def parsed_lines(self, fmt: str, verbatim_ws: bool = False) \
             -> typing.Iterator[typing.Tuple]:
         """
         Return the data parsed with a single parser
@@ -124,6 +124,7 @@ class Data(str):
         :param verbatim_ws: whether verbatim boolean is used
         :return: iterator of parsed tuples
         """
+
         return Parser(fmt, verbatim_ws=verbatim_ws).for_lines(self.lines)
 
     def print_excerpt(self) -> None:
@@ -161,6 +162,32 @@ class Data(str):
 
     def parsed(self, format) -> 'Parser':
         return Parser(format)(self)
+
+
+class IntersectionSet(set):
+    """
+    A set whose intersection_update counts the intersection of
+    *all* times the intersection is called
+    """
+    def __init__(self, iterable=None):
+        self._is_set = False
+        if iterable:
+            super().__init__(iterable)
+            self._is_set = True
+        else:
+            super().__init__()
+
+    def update(self, iterable):
+        self._is_set = True
+        super().update(iterable)
+
+    def intersection_update(self, *s: Iterable[Any]) -> None:
+        if not self._is_set:
+            super().update(*s)
+            self._is_set = True
+
+        else:
+            super().intersection_update(*s)
 
 
 def get_aoc_data(day: int, year=None) -> Data:

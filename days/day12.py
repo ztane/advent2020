@@ -29,7 +29,7 @@ def part1(data: Data, ans: Answers) -> None:
     position = 0
     direction = cdir.parse("E1")
 
-    for action, number in data.parsed("<chr><int>"):
+    for action, number in data.parsed_lines("<chr><int>"):
         if action in "NSWE":
             position += cdir.compass(action, number)
 
@@ -49,7 +49,7 @@ def part2(data: Data, ans: Answers) -> None:
     waypoint = cdir.parse("E10 N1")
     ship = 0
 
-    for action, number in data.parsed("<chr><int>"):
+    for action, number in data.parsed_lines("<chr><int>"):
         if action in "NSWE":
             waypoint += cdir.compass(action, number)
 
