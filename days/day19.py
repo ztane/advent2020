@@ -90,6 +90,7 @@ def match_rules(rules, messages):
         return result
 
     rule0 = re.compile(deduce('0'))
+    print(len(rule0.pattern))
     return sum(map(bool, map(rule0.fullmatch, messages)))
 
 
