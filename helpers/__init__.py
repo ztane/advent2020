@@ -1166,3 +1166,12 @@ def crt(mods: List[Tuple[int, int]]) -> CRTSolution:
     return CRTSolution(lowest=current, cycle=inc)
 
 
+class ToggleSet(set):
+    def toggle(self, value) -> None:
+        if value not in self:
+            self.add(value)
+        else:
+            self.discard(value)
+
+    def copy(self) -> 'ToggleSet':
+        return ToggleSet(self)
