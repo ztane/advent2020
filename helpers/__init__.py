@@ -14,7 +14,10 @@ from hashlib import md5
 from heapq import *
 # noinspection PyUnresolvedReferences
 from itertools import *
+
+builtin_pow = pow
 from math import *
+
 from numbers import *
 # noinspection PyUnresolvedReferences
 from textwrap import dedent
